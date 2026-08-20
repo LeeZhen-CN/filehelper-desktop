@@ -8,6 +8,15 @@ const STATE_FILE = () => path.join(app.getPath("userData"), "window-state.json")
 
 app.setName(APP_NAME);
 
+/* ---------- 退出控制 ----------
+ * 关闭按钮 = 隐藏到托盘（会话保活，秒开）
+ * 真正退出 = 托盘菜单「退出」或 ⌘Q / 菜单「退出」
+ */
+let isQuitting = false;
+app.on("before-quit", () => {
+  isQuitting = true;
+});
+
 /* ---------- 窗口状态记忆 ---------- */
 function loadWindowState() {
   try {
@@ -150,13 +159,39 @@ function createWindow() {
     }
   });
 
-  win.on("close", () => saveWindowState(win));
+  // 关闭按钮：隐藏到托盘而不是销毁，保持页面会话与登录态
+  win.on("close", (e) => {
+    saveWindowState(win);
+    if (!isQuitting) {
+      e.preventDefault();
+      win.hide();
+      // 首次隐藏到托盘时提示一次，避免用户以为应用已退出
+      if (!hasShownTrayHint && tray && process.platform === "win32") {
+        hasShownTrayHint = true;
+        tray.displayBalloon({
+          iconType: "info",
+          title: APP_NAME,
+          content: "已最小化到系统托盘，点击托盘图标可再次打开。",
+        });
+      }
+    }
+  });
   win.on("closed", () => (mainWindow = null));
   return win;
 }
 
 /* ---------- 托盘 ---------- */
 let tray = null;
+let hasShownTrayHint = false; // 只在第一次隐藏到托盘时提示
+
+function showMainWindow() {
+  if (mainWindow) {
+    mainWindow.isVisible() ? mainWindow.focus() : mainWindow.show();
+  } else {
+    createWindow();
+  }
+}
+
 function createTray() {
   try {
     const candidates = [
@@ -168,13 +203,23 @@ function createTray() {
     const image = nativeImage.createFromPath(iconPath).resize({ width: 18, height: 18 });
     tray = new Tray(image);
     tray.setToolTip(APP_NAME);
-    tray.on("click", () => {
-      if (mainWindow) {
-        mainWindow.isVisible() ? mainWindow.focus() : mainWindow.show();
-      } else {
-        createWindow();
-      }
-    });
+
+    // 左键点击：显示/聚焦主窗口
+    tray.on("click", showMainWindow);
+
+    // 右键菜单：显示 / 退出
+    const contextMenu = Menu.buildFromTemplate([
+      { label: `显示 ${APP_NAME}`, click: showMainWindow },
+      { type: "separator" },
+      {
+        label: "退出",
+        click: () => {
+          isQuitting = true;
+          app.quit();
+        },
+      },
+    ]);
+    tray.setContextMenu(contextMenu);
   } catch (_) {}
 }
 
@@ -195,9 +240,8 @@ app.whenReady().then(() => {
   buildMenu();
   createWindow();
   createTray();
-  app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
+  // 点击 Dock 图标：唤回隐藏中的窗口
+  app.on("activate", showMainWindow);
 });
 
 app.on("window-all-closed", () => {
