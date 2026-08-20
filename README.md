@@ -29,6 +29,14 @@
 - 🔗 **外链托管** — 站外链接自动用系统默认浏览器打开
 - 🔒 **最小权限** — 沙箱模式，禁用 Node 集成，仅放开剪贴板等必要权限
 
+## 📸 预览 / Preview
+
+首次启动后扫码登录，即可在手机微信与本机之间互传文件、文字和图片：
+
+<p align="center">
+  <img src="docs/screenshot.png" width="360" alt="微信传输助手桌面端截图" />
+</p>
+
 ## 📦 安装 / Install
 
 ### 直接下载（macOS Apple Silicon）
@@ -73,6 +81,7 @@ npx electron-packager . '微信传输助手' --platform=<darwin|win32|linux> --a
 ├── main.js          # Electron 主进程（窗口、菜单、托盘、CSS 注入）
 ├── make_icon.py     # 图标生成脚本（Pillow）
 ├── build/           # 图标资源（icon.icns / icon_1024.png）
+├── docs/            # README 截图等文档资源
 └── package.json
 ```
 
