@@ -40,7 +40,7 @@
 ### 从源码构建 / Build from source
 
 ```bash
-git clone https://github.com/<your-name>/wechat-filehelper-desktop.git
+git clone https://github.com/LeeZhen-CN/wechat-filehelper-desktop.git
 cd wechat-filehelper-desktop
 npm install
 
