@@ -3,7 +3,7 @@ const path = require("path");
 const fs = require("fs");
 
 const APP_URL = "https://filehelper.weixin.qq.com/";
-const APP_NAME = "微信传输助手";
+const APP_NAME = "FileHelper";
 const STATE_FILE = () => path.join(app.getPath("userData"), "window-state.json");
 
 app.setName(APP_NAME);
