@@ -42,8 +42,8 @@
 ### 方式一：从源码构建 / Build from source
 
 ```bash
-git clone git@github.com:LeeZhen-CN/wechat-filehelper-desktop.git
-cd wechat-filehelper-desktop
+git clone git@github.com:LeeZhen-CN/filehelper-desktop.git
+cd filehelper-desktop
 npm install
 
 # 开发模式运行
